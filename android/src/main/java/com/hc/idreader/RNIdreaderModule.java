@@ -1,5 +1,5 @@
 
-package com.reactlibrary;
+package com.hc.idreader;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
