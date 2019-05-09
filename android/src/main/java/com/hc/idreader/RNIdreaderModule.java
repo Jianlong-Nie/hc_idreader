@@ -215,66 +215,62 @@ public class RNIdreaderModule extends ReactContextBaseJavaModule {
             } catch (InterruptedException e) {
               e.printStackTrace();
             }
-            boolean bSamStatus = false;
             try {
-              bSamStatus = idCardReader.getStatus(0);
-            } catch (IDCardReaderException e) {
-              e.printStackTrace();
-            }
-
-            if (!bSamStatus)
-            {
+              boolean bSamStatus = false;
               try {
-                idCardReader.reset(0);
+                bSamStatus = idCardReader.getStatus(0);
               } catch (IDCardReaderException e) {
                 e.printStackTrace();
               }
-            }
-            final IDCardInfo idCardInfo = new IDCardInfo();
-            boolean ret = false;
-            final long nTickstart = System.currentTimeMillis();
-            try {
-              idCardReader.findCard(0);
-              idCardReader.selectCard(0);
-            }catch (IDCardReaderException e)
-            {
-              LogHelper.e("errcode:" + e.getErrorCode() + ",internalerrorcode:" + e.getInternalErrorCode());
-              //continue;
-            }
-            try {
-              Thread.sleep(50);
-            } catch (InterruptedException e) {
-              e.printStackTrace();
-            }
-            try {
-              ret = idCardReader.readCard(0, 0, idCardInfo);
-            }
-            catch (IDCardReaderException e)
-            {
-              writeLogToFile("读卡失败，错误信息：" + e.getMessage());
-            }
-            if (ret)
-            {
-              final long nTickUsed = (System.currentTimeMillis()-nTickstart);
-              writeLogToFile("读卡成功：" + (++mReadCount) + "次" + "，耗时：" + nTickUsed + "毫秒");
-              Log.i("blue","读取次数："  + mReadCount + ",耗时："+  nTickUsed +  "毫秒,姓名：" + idCardInfo.getName() + "，民族：" + idCardInfo.getNation() + "，住址：" + idCardInfo.getAddress() + ",身份证号：" + idCardInfo.getId());
-              WritableMap params = Arguments.createMap();
-              params.putString("address", idCardInfo.getAddress());
+
+              if (!bSamStatus) {
+                try {
+                  idCardReader.reset(0);
+                } catch (IDCardReaderException e) {
+                  e.printStackTrace();
+                }
+              }
+              final IDCardInfo idCardInfo = new IDCardInfo();
+              boolean ret = false;
+              final long nTickstart = System.currentTimeMillis();
+              try {
+                idCardReader.findCard(0);
+                idCardReader.selectCard(0);
+              } catch (IDCardReaderException e) {
+                LogHelper.e("errcode:" + e.getErrorCode() + ",internalerrorcode:" + e.getInternalErrorCode());
+                //continue;
+              }
+              try {
+                Thread.sleep(50);
+              } catch (InterruptedException e) {
+                e.printStackTrace();
+              }
+              try {
+                ret = idCardReader.readCard(0, 0, idCardInfo);
+              } catch (IDCardReaderException e) {
+                writeLogToFile("读卡失败，错误信息：" + e.getMessage());
+              }
+              if (ret) {
+                final long nTickUsed = (System.currentTimeMillis() - nTickstart);
+                writeLogToFile("读卡成功：" + (++mReadCount) + "次" + "，耗时：" + nTickUsed + "毫秒");
+                Log.i("blue", "读取次数：" + mReadCount + ",耗时：" + nTickUsed + "毫秒,姓名：" + idCardInfo.getName() + "，民族：" + idCardInfo.getNation() + "，住址：" + idCardInfo.getAddress() + ",身份证号：" + idCardInfo.getId());
+                WritableMap params = Arguments.createMap();
+                params.putString("address", idCardInfo.getAddress());
 //                            params.putString("authority", idCardInfo.get);
-              params.putString("birth", idCardInfo.getBirth());
-              params.putString("birthPrim", idCardInfo.getBirth());
+                params.putString("birth", idCardInfo.getBirth());
+                params.putString("birthPrim", idCardInfo.getBirth());
 
-              params.putString("cardNo", idCardInfo.getId());
-              params.putString("name", idCardInfo.getName());
-              params.putString("period", idCardInfo.getValidityTime());
-              params.putString("periodStart", "");
+                params.putString("cardNo", idCardInfo.getId());
+                params.putString("name", idCardInfo.getName());
+                params.putString("period", idCardInfo.getValidityTime());
+                params.putString("periodStart", "");
 
-              params.putString("periodEnd", "");
-              params.putString("sex", idCardInfo.getSex());
-              params.putString("chineseName", idCardInfo.getName());
+                params.putString("periodEnd", "");
+                params.putString("sex", idCardInfo.getSex());
+                params.putString("chineseName", idCardInfo.getName());
 
-              sendEvent(getReactApplicationContext(),"READ_IREADER",params);
-              idReaderClose();
+                sendEvent(getReactApplicationContext(), "READ_IREADER", params);
+                idReaderClose();
 
 //                            runOnUiThread(new Runnable() {
 //                                public void run() {
@@ -289,6 +285,10 @@ public class RNIdreaderModule extends ReactContextBaseJavaModule {
 //                                    }
 //                                }
 //                            });
+              }
+            } catch (Exception e) {
+              e.printStackTrace();
+              startIDCardReader();
             }
           }
           countdownLatch.countDown();
